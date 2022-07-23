@@ -1,6 +1,6 @@
 # Marvel API Consuming
 
-## Technolgies
+## Technologies
 - Next.js
 - Material-UI
 - Axios
