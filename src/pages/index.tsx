@@ -4,6 +4,7 @@ import Head from "next/head";
 import { marvel } from "@common/services/api";
 import { Comic } from "@comics/types";
 import MediaCard from "@common/utils/components/MediaCard";
+import { useState } from "react";
 
 export const getServerSideProps: GetServerSideProps = async () => {
   const { data } = await marvel.findAllComics();
@@ -19,7 +20,24 @@ interface Props {
   comics: Comic[];
 }
 
+const getFavoriteComicsIds = () => {
+  if (typeof window !== "undefined") {
+    const unparsedFavoriteComicsIds = String(
+      localStorage.getItem("favoriteComicsIds")
+    );
+    const favoriteComicsIds: number[] =
+      unparsedFavoriteComicsIds === "null"
+        ? []
+        : JSON.parse(unparsedFavoriteComicsIds);
+    return favoriteComicsIds;
+  }
+};
+
 const Home: NextPage<Props> = ({ comics }: Props) => {
+  const [favoriteComicsIds, setFavoriteComicsIds] = useState<
+    number[] | undefined
+  >(getFavoriteComicsIds());
+
   return (
     <Stack>
       <Head>
@@ -30,9 +48,14 @@ const Home: NextPage<Props> = ({ comics }: Props) => {
       <Stack alignItems="center" gap={4} width="100vw">
         {comics.map(({ id, title, description, thumbnail }) => (
           <MediaCard
+            id={id}
             title={title}
             description={description}
             image={`${thumbnail.path}.${thumbnail.extension}`}
+            favoriteComicsIds={favoriteComicsIds}
+            onFavorite={() => {
+              setFavoriteComicsIds(getFavoriteComicsIds());
+            }}
             key={id}
           />
         ))}
